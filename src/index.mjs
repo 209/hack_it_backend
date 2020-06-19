@@ -1,17 +1,15 @@
-import pkg from 'vk-io';
-import groups from './config/groups.mjs';
+import express from 'express';
+import logger from 'morgan';
+import indexRouter from './routes/index.mjs';
+import apiRouter from './routes/api.mjs';
 
-const { VK } = pkg;
-const vk = new VK({ token: process.env.VK_APP_TOKEN });
-const { api } = vk;
-const { ids: groupIds } = groups;
+const app = express();
 
-api.wall.get({
-  owner_id: -groupIds[0],
-  count: 2,
-})
-  .then(response => {
-    console.log("response", response);
-    console.log("attachments", response.items[0].attachments)
-  })
-  .catch(error => console.log(error));
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+
+app.use('/', indexRouter);
+app.use('/api', apiRouter);
+
+export default app;

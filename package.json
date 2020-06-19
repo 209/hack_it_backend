@@ -2,14 +2,16 @@
   "name": "hack_it_backend",
   "version": "0.0.1",
   "description": "",
-  "main": "src/index.mjs",
+  "main": "src/api/posts.mjs",
   "scripts": {
-    "run": "node --experimental-modules --no-warnings -r dotenv/config src/index.mjs"
+    "start": "node --experimental-modules -r dotenv/config ./bin/www.mjs"
   },
   "author": "hack_it",
   "license": "ISC",
   "dependencies": {
     "dotenv": "8.2.0",
+    "express": "4.17.1",
+    "morgan": "^1.10.0",
     "vk-io": "4.0.0-rc.30"
   }
 }
