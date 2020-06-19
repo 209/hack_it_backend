@@ -13,4 +13,4 @@ COPY . /backend
 #CMD ["npm","start"]
 CMD ["node", "--experimental-modules", "-r", "dotenv/config", "./bin/www.mjs"]
 
-EXPOSE 8080
+EXPOSE 80
