@@ -9,6 +9,6 @@ const { ids: groupIds } = groups;
 export default async () => {
   return api.wall.get({
     owner_id: -groupIds[0],
-    count: 2,
+    count: 10,
   });
 }
