@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node --experimental-modules -r dotenv/config ./bin/www.mjs"
   },
-  "author": "hack_it",
-  "license": "ISC",
+  "author": "Kolevatykh Ilja",
+  "license": "MIT",
   "dependencies": {
     "connect-mongo": "3.2.0",
     "dotenv": "8.2.0",
