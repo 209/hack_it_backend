@@ -40,7 +40,9 @@ router.get('/posts', async function (req, res, next) {
     };
   });
 
-  res.send(JSON.stringify(result));
+  res.send(JSON.stringify({
+    items: result,
+  }));
 });
 
 
