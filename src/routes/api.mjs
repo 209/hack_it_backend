@@ -101,17 +101,15 @@ router.get('/posts', async function (req, res, next) {
   if (userGEO) {
     filteredResult = result.filter(item => {
       if (!item.geoPlaces || item.geoPlaces.length === 0) {
-        return true;
+        return false;
       }
 
-      const isExist = item.geoPlaces.filter(pl => {
+      return item.geoPlaces.filter(pl => {
         if (pl.distance === null) {
-          return true;
+          return false;
         }
         return pl.distance < distance;
       }).length > 0;
-
-      return isExist;
     });
   } else {
     filteredResult = result;
