@@ -19,9 +19,9 @@ router.get('/posts', async function (req, res, next) {
     const additional = [];
     for (const e of entities) {
       const entity = {
-        type: e.type_name,
-        value: e.toString(),
-        slots: [],
+        type: e.type_name || '',
+        value: e.toString() || '',
+        // slots: [],
       };
       // for (const s of e.slots) {
       //   entity.slots.push({
