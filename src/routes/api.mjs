@@ -93,6 +93,7 @@ router.get('/posts', async function (req, res, next) {
     return {
       text,
       geoPlaces,
+      places,
     };
   }));
 
@@ -117,7 +118,10 @@ router.get('/posts', async function (req, res, next) {
   }
 
   res.send(JSON.stringify({
-    items: filteredResult,
+    items: filteredResult.map(item => ({
+      text: item.text,
+      places: item.places && item.places.map(place => place.value).join("; "),
+    })),
   }));
 });
 
