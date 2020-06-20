@@ -4,6 +4,9 @@ import session from 'express-session';
 import connectMongo from 'connect-mongo';
 import indexRouter from './routes/index.mjs';
 import apiRouter from './routes/api.mjs';
+import ProcessClass from './vendor/PullentiJavascript/process.js';
+
+ProcessClass.init();
 
 const MongoStore = connectMongo(session);
 
