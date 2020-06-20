@@ -1,5 +1,6 @@
 import express from 'express';
 import NodeGeocoder from 'node-geocoder';
+import getDistance from 'geolib/es/getDistance.js';
 import ProcessClass from '../vendor/PullentiJavascript/process.js';
 import MorphLang from "../vendor/PullentiJavascript/pullenti/morph/MorphLang.js";
 import postsAPI from '../api/posts.mjs';
@@ -21,10 +22,20 @@ router.get('/posts_raw', async function (req, res, next) {
 });
 
 router.get('/posts', async function (req, res, next) {
-  const posts = postsExampleRaw; // await postsAPI();
-  const { items: itemsRaw } = posts;
+  const geo = req.param("geo");
 
-  const items = itemsRaw.splice(0, 3);
+  console.log('geo', geo);
+
+  const distance = req.param("distance") || 3000;
+  let userGEOs = null;
+  let userGEO;
+  if (geo) {
+    userGEOs = await geocoder.geocode(geo);
+    userGEO = userGEOs[0];
+  }
+  const posts = postsExampleRaw; // await postsAPI();
+  const { items } = posts;
+  // const items = itemsRaw.splice(0, 3);
 
   const result = await Promise.all(items.map(async item => {
     const { text } = item;
@@ -53,22 +64,60 @@ router.get('/posts', async function (req, res, next) {
     let geoPlaces = [];
 
     if (places) {
-      geoPlaces = await Promise.all(places.map(place => {
-        return geocoder.geocode(place.value);
+      geoPlaces = await Promise.all(places.map(async place => {
+        let pl;
+        try {
+          pl = await geocoder.geocode(place.value);
+        } catch (e) {
+          debugger;
+          return {
+            distance: Infinity,
+          };
+        }
+
+        let distance = null;
+        if (userGEO) {
+          distance = getDistance.default(
+            { latitude: pl[0].latitude, longitude: pl[0].longitude },
+            { latitude: userGEO.latitude, longitude: userGEO.longitude }
+          );
+        }
+
+        return {
+          ...pl[0],
+          distance,
+        };
       }))
     }
 
     return {
       text,
       geoPlaces,
-      places
     };
   }));
 
-  console.log(result);
+  let filteredResult;
+  if (userGEO) {
+    filteredResult = result.filter(item => {
+      if (!item.geoPlaces || item.geoPlaces.length === 0) {
+        return true;
+      }
+
+      const isExist = item.geoPlaces.filter(pl => {
+        if (pl.distance === null) {
+          return true;
+        }
+        return pl.distance < distance;
+      }).length > 0;
+
+      return isExist;
+    });
+  } else {
+    filteredResult = result;
+  }
 
   res.send(JSON.stringify({
-    items: result,
+    items: filteredResult,
   }));
 });
 
