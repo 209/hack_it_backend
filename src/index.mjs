@@ -17,15 +17,15 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use('/', indexRouter);
 app.use('/api', apiRouter);
-app.use(session({
-  resave: true,
-  saveUninitialized: true,
-  secret: process.env.SESSION_SECRET,
-  cookie: { maxAge: 1209600000 }, // two weeks in milliseconds
-  store: new MongoStore({
-    url: process.env.MONGODB_URI,
-    autoReconnect: true,
-  })
-}));
+// app.use(session({
+//   resave: true,
+//   saveUninitialized: true,
+//   secret: process.env.SESSION_SECRET,
+//   cookie: { maxAge: 1209600000 }, // two weeks in milliseconds
+//   store: new MongoStore({
+//     url: process.env.MONGODB_URI,
+//     autoReconnect: true,
+//   })
+// }));
 
 export default app;

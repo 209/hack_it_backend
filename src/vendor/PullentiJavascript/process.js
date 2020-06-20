@@ -9,7 +9,7 @@ class Program {
   static init() {
     let sw = new Stopwatch();
     // инициализируются движок и все имеющиеся анализаторы
-    ProcessorService.initialize(MorphLang.ooBitor(MorphLang.RU, MorphLang.EN));
+    ProcessorService.initialize(MorphLang.RU);
     GeoAnalyzer.initialize();
     AddressAnalyzer.initialize();
     sw.stop();
@@ -19,7 +19,7 @@ class Program {
     let proc = ProcessorService.create_processor();
     try {
       // анализируем текст
-      let ar = proc.process(new SourceOfAnalysis(txt), null, null);
+      let ar = proc.process(new SourceOfAnalysis(txt), null, MorphLang.RU);
       // результирующие сущности
       return ar.entities;
     } finally {

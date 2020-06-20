@@ -1,6 +1,17 @@
 import express from 'express';
+import NodeGeocoder from 'node-geocoder';
 import ProcessClass from '../vendor/PullentiJavascript/process.js';
+import MorphLang from "../vendor/PullentiJavascript/pullenti/morph/MorphLang.js";
 import postsAPI from '../api/posts.mjs';
+import postsExampleRaw from '../fixtures/posts_example_raw.mjs';
+
+const geocoder = NodeGeocoder({
+  provider: 'google',
+  // Optional depending on the providers
+  apiKey: process.env.GOOGLE_API_KEY,
+  formatter: null,
+  language: 'ru',
+});
 
 const router = express.Router();
 
@@ -10,35 +21,51 @@ router.get('/posts_raw', async function (req, res, next) {
 });
 
 router.get('/posts', async function (req, res, next) {
-  const posts = await postsAPI();
-  const { items } = posts;
+  const posts = postsExampleRaw; // await postsAPI();
+  const { items: itemsRaw } = posts;
 
-  const result = items.map(item => {
+  const items = itemsRaw.splice(0, 3);
+
+  const result = await Promise.all(items.map(async item => {
     const { text } = item;
     const entities = ProcessClass.process(text);
-    const additional = [];
+    const additional = {
+      GEO: [],
+      STREET: [],
+      ADDRESS: [],
+    };
     for (const e of entities) {
-      const entity = {
-        type: e.type_name || '',
-        value: e.toString() || '',
-        // slots: [],
-      };
-      // for (const s of e.slots) {
-      //   entity.slots.push({
-      //     type: s.type_name,
-      //     value: s.value,
-      //   });
-      // }
-      additional.push(entity);
+      additional[e.type_name].push({
+        value: e.to_string(false, MorphLang.RU, 0),
+        shortValue: e.to_string(true, MorphLang.RU, 0) || '',
+      });
     }
 
-    console.log(additional);
+    let places = null;
+    if (additional.ADDRESS.length) {
+      places = additional.ADDRESS;
+    } else if (additional.STREET.length) {
+      places = additional.STREET;
+    }else if (additional.GEO.length) {
+      places = additional.GEO;
+    }
+
+    let geoPlaces = [];
+
+    if (places) {
+      geoPlaces = await Promise.all(places.map(place => {
+        return geocoder.geocode(place.value);
+      }))
+    }
 
     return {
       text,
-      additional
+      geoPlaces,
+      places
     };
-  });
+  }));
+
+  console.log(result);
 
   res.send(JSON.stringify({
     items: result,
