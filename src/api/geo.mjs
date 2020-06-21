@@ -23,8 +23,13 @@ export default async geoData => {
   }
 
   return Promise.all(places.map(async place => {
-    const { latitude, longitude } = await geocoder.geocode(place.value);
+    const response = await geocoder.geocode(place.value);
 
-    return { ...place, geo: { latitude, longitude } };
+    if (response.length) {
+      const { latitude, longitude } = response[0];
+      return { ...place, geo: { latitude, longitude } };
+    } else {
+      return { ...place, geo: null };
+    }
   }));
 }

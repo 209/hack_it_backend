@@ -53,39 +53,61 @@ router.get('/posts', async function (req, res, next) {
     .sort({ date: -1 })
     .limit(+count);
 
+  posts = posts.map(post => post.toObject());
+
   if (onlyNew) {
     posts.forEach(({ id }) => {
       PostModel.findOneAndUpdate({ id }, { "label": "read" });
     })
   }
 
+  let updatedPost = posts;
   if (userGEO) {
-    posts = posts.map(post => {
+    updatedPost = posts.map(post => {
       const { geoData } = post;
 
-      post.geoData = geoData.map(geoDataItem => {
-        const { geo: { latitude, longitude } } = geoDataItem;
+      const newGeoData = geoData.map(geoDataItem => {
+        const { geo } = geoDataItem;
+        console.log('geo', geo);
+        if (!geo) {
+          return { ...geoDataItem };
+        }
+
+        const { latitude, longitude } = geo;
         const distance = getDistance.default(
           { latitude, longitude },
           { latitude: userGEO.latitude, longitude: userGEO.longitude }
         );
+        console.log('distance', distance);
         return {
           ...geoDataItem,
           distance
         };
       });
+
+      console.log('newGeoData', newGeoData);
+
+      return {
+        ...post,
+        geoData: newGeoData,
+      };
     });
   }
 
+  console.log('posts[geoData]', posts.map(item => item.geoData));
+
   // filtering by distance
+  let updatedPost2 = updatedPost;
   if (userGEO) {
-    posts = posts.filter(item => {
+    updatedPost2 = updatedPost.filter(item => {
+      console.log('item.geoData', item.geoData);
       // если не определили GEO - не отображаем
       if (!item.geoData || item.geoData.length === 0) {
         return false;
       }
 
       return item.geoData.filter(geoDataItem => {
+        console.log('geoDataItem.distance', geoDataItem.distance);
         // если нет дистанции, то не отоборажаем
         if (geoDataItem.distance === null) {
           return false;
@@ -95,17 +117,15 @@ router.get('/posts', async function (req, res, next) {
     });
   }
 
-
-
   // preparing
-  posts = posts.map(item => ({
+  const updatedPost3 = updatedPost2.map(item => ({
     text:          item.text,
     geoDataString: item.geoData && item.geoData.map(place => place.value).join("; "),
     link:          `https://vk.com/wall${item.owner_id}_${item.id}`,
   }))
 
   res.send(JSON.stringify({
-    items: posts,
+    items: updatedPost3,
   }));
 });
 
