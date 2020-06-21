@@ -34,6 +34,9 @@ HOST=0.0.0.0 (специально для docker container)
 
 Запуск: docker-compose up [-d] web
 
+Для улучшения работы получения адреса из текста нужно разобраться с TerminCollection в pullenti
+Но в ближайшее время ожидаеся обновление: будут добавлены станции метро РФ и другие мелкие фиксы.
+
 Бот
 
 https://github.com/AnastasiaKolev/telegrambot-foodsharing
