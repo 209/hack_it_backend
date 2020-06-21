@@ -51,7 +51,7 @@ router.get('/posts', async function (req, res, next) {
   }
   let posts = await PostModel.find(params)
     .sort({ date: -1 })
-    .limit(+count);
+    .limit(60);
 
   posts = posts.map(post => post.toObject());
 
@@ -125,7 +125,7 @@ router.get('/posts', async function (req, res, next) {
   }))
 
   res.send(JSON.stringify({
-    items: updatedPost3,
+    items: updatedPost3.splice(0, count),
   }));
 });
 
