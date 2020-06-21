@@ -125,7 +125,7 @@ router.get('/posts', async function (req, res, next) {
   }))
 
   res.send(JSON.stringify({
-    items: updatedPost3.splice(0, count),
+    items: updatedPost3.splice(0, +count),
   }));
 });
 
