@@ -95,11 +95,13 @@ router.get('/posts', async function (req, res, next) {
     });
   }
 
+
+
   // preparing
   posts = posts.map(item => ({
     text:          item.text,
     geoDataString: item.geoData && item.geoData.map(place => place.value).join("; "),
-    link:          '',
+    link:          `https://vk.com/wall${item.owner_id}_${item.id}`,
   }))
 
   res.send(JSON.stringify({
